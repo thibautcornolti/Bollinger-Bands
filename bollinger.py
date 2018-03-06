@@ -20,6 +20,9 @@ def error_handling(args, file_stream):
     elif len(file_stream.readlines()) < args.period:
         print("Period can't be lower than the number of value")
         exit(84)
+    elif args.period <= 0:
+        print("Period must be higher than 0")
+        exit(84)
     file_stream.seek(0)
 
 
