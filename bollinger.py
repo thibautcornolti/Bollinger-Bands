@@ -5,6 +5,10 @@ import sys
 
 
 def parse_args():
+    for a in sys.argv:
+        if "-h" in a and len(sys.argv) != 2:
+            exit(84)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("period", help="number of indexes for the moving average", type=int)
     parser.add_argument("standard_dev", help="standard deviation coefficient to apply", type=float)
