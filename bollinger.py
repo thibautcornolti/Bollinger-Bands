@@ -1,48 +1,52 @@
 #! /usr/bin/env python3
 
-from sys import argv
+import argparse
 
-if len(argv) != 5:
-    raise Exception("Invalid argument number")
 
-try:
-    index = int(argv[4])
-    period = int(argv[1])
-    sd_coefficient = float(argv[2])
-except:
-    raise Exception("Invalid argument value")
-try:
-    file_stream = open(argv[3], "r")
-except:
-    raise Exception("Invalid file")
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("period", help="number of indexes for the moving average", type=int)
+    parser.add_argument("standard_dev", help="standard deviation coefficient to apply", type=float)
+    parser.add_argument("indexes_file", help="file containing daily indexes")
+    parser.add_argument("index_number", help="index number to compute moving average and Bollinger bands", type=int)
+    return parser.parse_args()
+
+
+def open_file(filename):
+    try:
+        return open(filename, "r")
+    except Exception as e:
+        exit(e)
 
 
 def average(arr):
     return sum(arr) / len(arr) if (len(arr)) else 0
 
 
-def deviation(arr, avg):
+def deviation(period, arr, avg):
     return (1 / period * sum([(v - avg) ** 2 for v in arr])) ** (1 / 2)
 
 
 def main():
+    args = parse_args()
+    file_stream = open_file(args.indexes_file)
     values = [
         float(line[:-1])
         for line in file_stream.readlines()
-    ][index - period + 1: index + 1]
+    ][args.index_number - args.period + 1: args.index_number + 1]
     avg = average(values)
-    dev = deviation(values, avg)
+    dev = deviation(args.period, values, avg)
 
-    upper_band = avg + (dev * sd_coefficient)
-    lower_band = avg - (dev * sd_coefficient)
+    upper_band = avg + (dev * args.standard_dev)
+    lower_band = avg - (dev * args.standard_dev)
 
     print("INPUT")
-    print("Index:", index)
-    print("Period:", period)
-    print("SD_coef: %.2f" % sd_coefficient)
+    print("Index:", args.index_number)
+    print("Period:", args.period)
+    print("SD_coef: %.2f" % args.standard_dev)
     print("\nOUTPUT")
     print("MA: %.2f" % avg)
-    print("SD: %.2f" % deviation)
+    print("SD: %.2f" % dev)
     print("B+: %.2f" % upper_band)
     print("B-: %.2f" % lower_band)
 
