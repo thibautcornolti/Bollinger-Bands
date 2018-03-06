@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import argparse
+import sys
 
 
 def parse_args():
@@ -12,11 +13,22 @@ def parse_args():
     return parser.parse_args()
 
 
+def error_handling(args, file_stream):
+    if args.period > args.index_number:
+        print("Period can't be lower than index", file=sys.stderr)
+        exit(84)
+    elif len(file_stream.readlines()) < args.period:
+        print("Period can't be lower than the number of value")
+        exit(84)
+    file_stream.seek(0)
+
+
 def open_file(filename):
     try:
         return open(filename, "r")
     except Exception as e:
-        exit(e)
+        print(e, file=sys.stderr)
+        exit(84)
 
 
 def average(arr):
@@ -30,6 +42,7 @@ def deviation(period, arr, avg):
 def main():
     args = parse_args()
     file_stream = open_file(args.indexes_file)
+    error_handling(args, file_stream)
     values = [
         float(line[:-1])
         for line in file_stream.readlines()
