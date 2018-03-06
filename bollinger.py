@@ -68,4 +68,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except:
+        print("Fatal error occured", file=sys.stderr)
+        exit(84)
